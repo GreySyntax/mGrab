@@ -155,18 +155,15 @@
 
 - (BOOL)network
 {
-	- (BOOL)checkNetwork {
+	const char *host = "tinygrab.com";
+	SCNetworkReachabilityRef reach = SCNetworkReachabilityCreateWithName(NULL, host);
 
-		const char *host = "tinygrab.com";
-		SCNetworkReachabilityRef reach = SCNetworkReachabilityCreateWithName(NULL, host);
+	SCNetworkReachabilityFlags flag;
 
-		SCNetworkReachabilityFlags flag;
+	Boolean conn = SCNetworkReachabilityGetFlags(reach, &flag);
 
-		Boolean conn = SCNetworkReachabilityGetFlags(reach, &flag);
-
-		//Can we reach tinygrab.com?
-		return (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired));
-	}
+	//Can we reach tinygrab.com?
+	return (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired));
 }
 #pragma mark -
 @end
