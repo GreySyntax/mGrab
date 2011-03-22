@@ -1,6 +1,6 @@
 What is mGrab?
 ================================
-mGrab is a miniature API wrapper for TinyGrab '2.0', this was origonally developed by [NSPwn](http://www.nspwn.com) for SB2Cloud.
+mGrab is a miniature API wrapper for TinyGrab '2.0', this was origonally developed by [NSPwn](http://www.nspwn.com) for SB2Cloud. This is designed to work within SpringBoard on iOS so yeah it might not work for you.
 
 How do i use it?
 ================================
