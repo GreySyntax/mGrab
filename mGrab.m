@@ -133,12 +133,20 @@
 #pragma mark -
 
 #pragma mark Common
+- (NSString*)generateName
+{
+	NSDateFormatter *dateFormat = [[[NSDateFormatter alloc] init] autorelease];
+	[dateFormat setDateFormat: @"yyyy-MM-dd HH:mm:ss zzz"]; // 2011-02-01 19:50:41 PST
+	
+	return [NSString stringWithFormat:@"mGrab - %@.png", [dateFormat stringFromDate:[NSDate date]]];
+}
+
 - (NSString*)md5:(NSString*)chunk
 {
-  const char *cStr = [str UTF8String];
+  const char *cStr = [chunk UTF8String];
   unsigned char result[CC_MD5_DIGEST_LENGTH];
 
-  CC_MD5( cStr, strlen(cStr), result );
+  CC_MD5(cStr, strlen(cStr), result);
 
   return [[NSString
       stringWithFormat:@"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
