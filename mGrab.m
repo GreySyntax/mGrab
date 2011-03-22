@@ -33,6 +33,31 @@
 	return self;
 }
 
+- (void)dealloc
+{
+	if (self.email != nil)
+	{
+		[self.email release];
+	}
+	
+	if (self.password != nil)
+	{
+		[self.password release];
+	}
+	
+	if (self.url != nil)
+	{
+		[self.url release];
+	}
+	
+	if (self.error != nil)
+	{
+		[self.error release];
+	}
+	
+	[super dealloc];
+}
+
 - (BOOL)login
 {
 	if (image == nil || self.email == nil || self.password != nill)
