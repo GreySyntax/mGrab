@@ -19,6 +19,7 @@
 	
 @private
 	BOOL session;
+	BOOL reachable;
 	NSString *email;
 	NSString *password;
 }

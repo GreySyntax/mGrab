@@ -25,6 +25,7 @@
 		self.email = email;
 		self.password = password;
 		self.session = NO;
+		self.reachable = NO;
 		self.url = @"";
 		self.error = @"";
 	}
@@ -37,6 +38,12 @@
 	if (image == nil || self.email == nil || self.password != nill)
 	{
 		self.error = @"Email/Password was nil";
+		return NO;
+	}
+	
+	if (! [self network])
+	{
+		self.error = @"No network connection was available";
 		return NO;
 	}
 	
@@ -106,8 +113,7 @@
 		return NO;
 	}
 	
-	self.session = YES;
-	return YES;
+	return (self.session = YES);
 }
 
 - (NSString*)upload:(NSString*)file
@@ -133,8 +139,12 @@
 	
 	if (!self.session && ![self login])
 	{
-		self.error = @"Failed to login";
 		return NO;
+	}
+	
+	if (! self.reachable && ![self network])
+	{
+		self.error = @"No network connection was available";
 	}
 	
 	NSError *error;
@@ -202,10 +212,9 @@
 	NSLog(@"DICT:\r\n\r\n%@", dict);
 	#endif
 	
-	self.url = [dict objectForKey:@"X-Grab-Url"];
 	self.error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
 	
-	return self.url
+	return (self.url = [dict objectForKey:@"X-Grab-Url"]);
 }
 
 #pragma mark -
@@ -248,6 +257,6 @@
 	Boolean conn = SCNetworkReachabilityGetFlags(reach, &flag);
 
 	//Can we reach tinygrab.com?
-	return (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired));
+	return (self.reachable = (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired)));
 }
 @end
