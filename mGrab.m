@@ -24,6 +24,9 @@
 	{
 		self.email = email;
 		self.password = password;
+		self.session = NO;
+		self.url = @"";
+		self.error = @"";
 	}
 	
 	return self;
@@ -103,6 +106,7 @@
 		return NO;
 	}
 	
+	self.session = YES;
 	return YES;
 }
 
@@ -125,6 +129,12 @@
 	{
 		self.error = @"Image/Email/Password was nil";
 		return @"";
+	}
+	
+	if (!self.session && ![self login])
+	{
+		self.error = @"Failed to login";
+		return NO;
 	}
 	
 	NSError *error;
