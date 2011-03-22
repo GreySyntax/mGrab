@@ -30,14 +30,79 @@
 
 - (BOOL)login
 {
-	//stub
 	if (image == nil || self.email == nil || self.password != nill)
 	{
 		self.error = @"Email/Password was nil";
 		return NO;
 	}
 	
-	return NO;
+	NSError *error;
+	
+	//creating the url request:
+	NSURL *uploadEndpoint = [NSURL URLWithString:@"http://tinygrab.com/api/v3.php?m=grab/upload"];
+	NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:uploadEndpoint];
+
+	//adding header information:
+	[postRequest setHTTPMethod:@"POST"];
+
+	NSString *stringBoundary = [NSString stringWithString:@"---------------------------mGrab"];
+	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@",stringBoundary];
+	[postRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
+
+	//setting up the body:
+	NSMutableData *postBody = [NSMutableData data];
+
+	//EMAIL
+	[postBody appendData:[[NSString stringWithFormat:@"--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:@"Content-Disposition: form-data; name=\"email\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:self.email] dataUsingEncoding:NSUTF8StringEncoding]];
+
+	//PASSWORD
+	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:@"Content-Disposition: form-data; name=\"passwordhash\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:[self md5:password]] dataUsingEncoding:NSUTF8StringEncoding]];
+	
+	//END
+	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postRequest setHTTPBody:postBody];
+
+	error = nil;
+	NSURLResponse *response = nil;
+
+	NSData *returnData = [NSURLConnection sendSynchronousRequest:postRequest returningResponse:&response error:&error];
+
+	if (error != nil) {
+		
+		self.error = [error localizedDescription];
+		return NO;
+	}
+
+	if (![response respondsToSelector:@selector(allHeaderFields)]) {
+
+		self.error = @"Cant access headers (failed to cast)";
+		return NO;
+	}
+
+	NSDictionary *dict = [response allHeaderFields];
+
+	if (dict == nil) {
+
+		self.error = @"Headers were empty";
+		return NO;
+	}
+	
+	#if defined(DEBUG)
+	NSLog(@"DICT:\r\n\r\n%@", dict);
+	#endif
+	
+	self.error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
+	
+	if (self.error != nil)
+	{
+		return NO;
+	}
+	
+	return YES;
 }
 
 - (NSString*)upload:(NSString*)file
@@ -47,6 +112,7 @@
 		self.error = @"Specified file not found";
 		return @"";
 	}
+	
 	
 	return [self upload:[NSData dataWithContentsOfFile:file]];
 }
