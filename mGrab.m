@@ -11,6 +11,7 @@
 @implementation mGrab
 @synthesize url, error;
 
+#pragma mark -
 #pragma mark Core
 - (id)init
 {
@@ -196,8 +197,8 @@
 	
 	return self.url
 }
-#pragma mark -
 
+#pragma mark -
 #pragma mark Common
 - (NSString*)generateName
 {
@@ -239,5 +240,4 @@
 	//Can we reach tinygrab.com?
 	return (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired));
 }
-#pragma mark -
 @end

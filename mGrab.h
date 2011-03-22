@@ -23,19 +23,17 @@
 	NSString *password;
 }
 
+#pragma mark -
 #pragma mark Core
 - (id)init;
 - (id)initWithEmail:(NSString*)email andPassword:(NSString*)password;
 - (BOOL)login;
 - (NSString*)upload:(NSString*)file;
 - (NSString*)upload:(NSData*)image;
-#pragma mark -
 
+#pragma mark -
 #pragma mark Common
 - (NSString*)generateName;
 - (NSString*)md5:(NSString*)chunk;
 - (BOOL)network;
-#pragma mark -
-
-// Setter's & Getter's
 @end
