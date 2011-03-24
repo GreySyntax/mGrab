@@ -17,19 +17,21 @@
 	NSString *url;
 	NSString *error;
 	
-@private
-	BOOL session;
-	BOOL reachable;
-	NSString *email;
-	NSString *password;
+@private BOOL session;
+@private BOOL reachable;
+@private NSString *email;
+@private NSString *password;
 }
+
+@property (nonatomic, retain) NSString *url;
+@property (nonatomic, retain) NSString *error;
 
 #pragma mark -
 #pragma mark Core
 - (id)init;
-- (id)initWithEmail:(NSString*)email andPassword:(NSString*)password;
+- (id)initWithEmail:(NSString*)useremail andPassword:(NSString*)userpassword;
 - (BOOL)login;
-- (NSString*)upload:(NSString*)file;
+- (NSString*)uploadFromFile:(NSString*)file;
 - (NSString*)upload:(NSData*)image;
 
 #pragma mark -

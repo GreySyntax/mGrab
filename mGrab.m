@@ -18,16 +18,16 @@
 	return [self initWithEmail:nil andPassword:nil];
 }
 
-- (id)initWithEmail:(NSString*)email andPassword:(NSString*)password
+- (id)initWithEmail:(NSString*)useremail andPassword:(NSString*)userpassword
 {
 	if((self = [super init]))
 	{
-		self.email = email;
-		self.password = password;
-		self.session = NO;
-		self.reachable = NO;
-		self.url = @"";
-		self.error = @"";
+		email = useremail;
+		password = userpassword;
+		session = NO;
+		reachable = NO;
+        url = @"";
+		error = @"";
 	}
 	
 	return self;
@@ -35,24 +35,24 @@
 
 - (void)dealloc
 {
-	if (self.email != nil)
+	if (email != nil)
 	{
-		[self.email release];
+		[email release];
 	}
 	
-	if (self.password != nil)
+	if (password != nil)
 	{
-		[self.password release];
+		[password release];
 	}
 	
-	if (self.url != nil)
+	if (url != nil)
 	{
-		[self.url release];
+		[url release];
 	}
 	
-	if (self.error != nil)
+	if (error != nil)
 	{
-		[self.error release];
+		[error release];
 	}
 	
 	[super dealloc];
@@ -60,22 +60,22 @@
 
 - (BOOL)login
 {
-	if (image == nil || self.email == nil || self.password != nill)
+	if (email == nil || password == nil)
 	{
-		self.error = @"Email/Password was nil";
+		error = @"Email/Password was nil";
 		return NO;
 	}
 	
 	if (! [self network])
 	{
-		self.error = @"No network connection was available";
+		error = @"No network connection was available";
 		return NO;
 	}
 	
-	NSError *error;
+	NSError *err;
 	
 	//creating the url request:
-	NSURL *uploadEndpoint = [NSURL URLWithString:@"http://tinygrab.com/api/v3.php?m=grab/upload"];
+	NSURL *uploadEndpoint = [NSURL URLWithString:@"http://tinygrab.com/api/v3.php?m=user/verify"];
 	NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:uploadEndpoint];
 
 	//adding header information:
@@ -91,7 +91,7 @@
 	//EMAIL
 	[postBody appendData:[[NSString stringWithFormat:@"--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[[NSString stringWithString:@"Content-Disposition: form-data; name=\"email\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postBody appendData:[[NSString stringWithString:self.email] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:email] dataUsingEncoding:NSUTF8StringEncoding]];
 
 	//PASSWORD
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
@@ -102,20 +102,20 @@
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postRequest setHTTPBody:postBody];
 
-	error = nil;
+	err = nil;
 	NSURLResponse *response = nil;
 
-	NSData *returnData = [NSURLConnection sendSynchronousRequest:postRequest returningResponse:&response error:&error];
+	[NSURLConnection sendSynchronousRequest:postRequest returningResponse:&response error:&err];
 
-	if (error != nil) {
+	if (err != nil) {
 		
-		self.error = [error localizedDescription];
+		error = [err localizedDescription];
 		return NO;
 	}
 
 	if (![response respondsToSelector:@selector(allHeaderFields)]) {
 
-		self.error = @"Cant access headers (failed to cast)";
+		error = @"Cant access headers (failed to cast)";
 		return NO;
 	}
 
@@ -123,7 +123,7 @@
 
 	if (dict == nil) {
 
-		self.error = @"Headers were empty";
+		error = @"Headers were empty";
 		return NO;
 	}
 	
@@ -131,21 +131,21 @@
 	NSLog(@"DICT:\r\n\r\n%@", dict);
 	#endif
 	
-	self.error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
+	error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
 	
-	if (self.error != nil)
+	if (err != nil)
 	{
 		return NO;
 	}
 	
-	return (self.session = YES);
+	return (session = YES);
 }
 
-- (NSString*)upload:(NSString*)file
+- (NSString*)uploadFromFile:(NSString *)file
 {
-	if ([[NSFileManager defaultManager] fileExistsAtPath:file])
+	if (![[NSFileManager defaultManager] fileExistsAtPath:file])
 	{
-		self.error = @"Specified file not found";
+		error = @"Specified file not found";
 		return @"";
 	}
 	
@@ -156,23 +156,24 @@
 - (NSString*)upload:(NSData*)image
 {
 	
-	if (image == nil || self.email == nil || self.password != nill)
+	if (image == nil || email == nil || password == nil)
 	{
-		self.error = @"Image/Email/Password was nil";
+        NSLog(@"image: %@\r\nemail: %@\r\npassword: %@", image, email, password);
+        error = @"Image/Email/Password was nil";
 		return @"";
 	}
 	
-	if (!self.session && ![self login])
+	if (!session && ![self login])
 	{
 		return NO;
 	}
 	
-	if (! self.reachable && ![self network])
+	if (! reachable && ![self network])
 	{
 		self.error = @"No network connection was available";
 	}
 	
-	NSError *error;
+	NSError *err;
 	
 	//creating the url request:
 	NSURL *uploadEndpoint = [NSURL URLWithString:@"http://tinygrab.com/api/v3.php?m=grab/upload"];
@@ -191,7 +192,7 @@
 	//EMAIL
 	[postBody appendData:[[NSString stringWithFormat:@"--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[[NSString stringWithString:@"Content-Disposition: form-data; name=\"email\"\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postBody appendData:[[NSString stringWithString:self.email] dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithString:email] dataUsingEncoding:NSUTF8StringEncoding]];
 
 	//PASSWORD
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
@@ -202,26 +203,26 @@
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"upload\"; filename=\"%@\"\r\n", [self generateName]] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[[NSString stringWithString:@"Content-Type: image/png\r\n\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
-	[postBody appendData:[NSData dataWithData:img]];
+	[postBody appendData:[NSData dataWithData:image]];
 
 	//END
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n",stringBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postRequest setHTTPBody:postBody];
 
-	error = nil;
+	err = nil;
 	NSURLResponse *response = nil;
 
-	NSData *returnData = [NSURLConnection sendSynchronousRequest:postRequest returningResponse:&response error:&error];
+	[NSURLConnection sendSynchronousRequest:postRequest returningResponse:&response error:&err];
 
-	if (error != nil) {
+	if (err != nil) {
 		
-		self.error = [error localizedDescription];
+		error = [err localizedDescription];
 		return @"";
 	}
 
 	if (![response respondsToSelector:@selector(allHeaderFields)]) {
 
-		self.error = @"Cant access headers (failed to cast)";
+		error = @"Cant access headers (failed to cast)";
 		return @"";
 	}
 
@@ -229,7 +230,7 @@
 
 	if (dict == nil) {
 
-		self.error = @"Headers were empty";
+		error = @"Headers were empty";
 		return @"";
 	}
 	
@@ -237,9 +238,9 @@
 	NSLog(@"DICT:\r\n\r\n%@", dict);
 	#endif
 	
-	self.error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
+	error = [dict objectForKey:@"X-Error-Text"]; // Will either update or set error to nill
 	
-	return (self.url = [dict objectForKey:@"X-Grab-Url"]);
+	return (url = [dict objectForKey:@"X-Grab-Url"]);
 }
 
 #pragma mark -
@@ -282,6 +283,6 @@
 	Boolean conn = SCNetworkReachabilityGetFlags(reach, &flag);
 
 	//Can we reach tinygrab.com?
-	return (self.reachable = (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired)));
+	return (reachable = (conn && (flag & kSCNetworkFlagsReachable) && !(flag & kSCNetworkFlagsConnectionRequired)));
 }
 @end
