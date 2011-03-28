@@ -35,26 +35,10 @@
 
 - (void)dealloc
 {
-	if (email != nil)
-	{
-		[email release];
-	}
-	
-	if (password != nil)
-	{
-		[password release];
-	}
-	
-	if (url != nil)
-	{
-		[url release];
-	}
-	
-	if (error != nil)
-	{
-		[error release];
-	}
-	
+	[email release];
+	[password release];	
+	[url release];
+	[error release];
 	[super dealloc];
 }
 
